@@ -1,0 +1,11 @@
+*.o
+*.csv
+a.out
+*.exe
+*.utf8
+*.zip
+*.wav
+# On évite d'envoyer les images sur le serveur Git pour ne pas le charger inutilement
+*.pgm 
+.DS_Store
+
