@@ -70,7 +70,7 @@ int byte_set_lsb( byte_t *p_byte, unsigned int b, byte_t val );
  * @RETURN : 0 si OK.
  * Erreurs : 
  *  - si p_res == NULL
- *  - si firstbit+b > 7
+ *  - si firstbit+b > 8
  */
 int byte_get_bits( byte_t byte, unsigned int firstbit, unsigned int b, byte_t *p_res );
 
@@ -105,7 +105,7 @@ int byte_get_bits( byte_t byte, unsigned int firstbit, unsigned int b, byte_t *p
  * @RETURN : 0 si OK.
  * Erreurs : 
  *  - si p_byte == NULL
- *  - si firstbit+b > 7
+ *  - si firstbit+b > 8
  */
 int byte_set_bits( byte_t * p_byte, unsigned int firstbit, unsigned int b, byte_t val );
 

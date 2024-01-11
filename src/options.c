@@ -8,6 +8,17 @@
 
 char *option_string( char letter, int argc, char *argv[] ) {
   // TODO
+  int i;
+  for (i = 0; i < argc; i++) {
+    if (argv[i][0] == '-' && argv[i][1] == letter) {
+      if (argv[i][2] == '=') {
+        return argv[i] + 3;
+      }
+      else {
+        return argv[i] + 2;
+      }
+    }
+  }
   return NULL;
 }
 

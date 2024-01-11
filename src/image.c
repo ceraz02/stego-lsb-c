@@ -5,12 +5,57 @@
 
 image_t  image_new( int height, int width, int nbchan ) {
   // TODO
-  return NULL;
+
+  /* Vérification des paramètres */
+  if ((height < 0) || (width < 0))
+  {
+    // printf("Erreur : height ou width < 0\n");
+    return NULL;
+  }
+  if ((nbchan != 1) && (nbchan != 3)) 
+  {
+    // printf("Erreur : nbchan != 1 ou 3\n");
+    return NULL;
+  }
+
+  /* Allocation de la mémoire */
+  image_t img = calloc(1, sizeof(image_t));
+  if (img == NULL) 
+  {
+    // printf("Erreur d'allocation de mémoire\n");
+    return NULL;
+  }
+
+  /* Initialisation des champs */
+  img->height = height;
+  img->width = width;
+  img->nbchan = nbchan;
+
+  /* Allocation de la mémoire pour les pixels */
+  img->pix = calloc(height, sizeof(pixel_t *));
+  if (img->pix == NULL) return NULL;
+
+  /* Allocation de la mémoire pour les lignes */
+  img->pix[0] = calloc(height * width, sizeof(pixel_t));
+  if (img->pix[0] == NULL) return NULL;
+
+  /* Initialisation des lignes */
+  for (int i = 1; i < height; i++) {
+    img->pix[i] = img->pix[0] + i * width;
+  }
+
+  return img;
 }
 
 int      image_delete( image_t img ) {
   // TODO
-  return -1;
+  if (img == NULL) return 1;
+
+  free(img->pix[0]);
+  free(img->pix);
+  free(img);
+
+  return 0;
 }
 
 int        image_printf( image_t img ) {
@@ -68,10 +113,28 @@ int      image_get_nbchan( image_t img ) {
 
 int image_get_pixel( image_t img, int r, int c, pixel_t * p_pix ) {
   // TODO
-  return -1;
+
+  /* Vérification des paramètres */
+  if (img == NULL) return -1;
+  if ((r < 0) || (r >= img->height) || (c < 0) || (c >= img->width)) return -1;
+
+  /* Récupération du pixel */
+  *p_pix = img->pix[r][c];
+
+  // printf("r = %d, c = %d, pix = %d\n", r, c, *p_pix);
+
+  return 0;
 }
 
 int image_set_pixel( image_t img, int r, int c, pixel_t pix ) {
   // TODO
-  return -1;
+
+  /* Vérification des paramètres */
+  if (img == NULL) return -1;
+  if ((r < 0) || (r >= img->height) || (c < 0) || (c >= img->width)) return -1;
+
+  /* Modification du pixel */
+  img->pix[r][c] = pix;
+
+  return 0;
 }

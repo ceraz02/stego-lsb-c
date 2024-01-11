@@ -22,7 +22,7 @@ typedef struct {
  * @RETURN : l'adresse de l'image en mémoire, ou NULL si erreur.
  * Erreurs : 
  *   - Si height ou width sont < 0. 
- *   - Si chan est différent de 0 ou 3.
+ *   - Si chan est différent de 1 ou 3.
  */
 image_t  image_new( int height, int width, int nbchan );
 
