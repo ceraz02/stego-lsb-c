@@ -15,72 +15,79 @@
 int stego_encode_block( byte_t *ptr, size_t size, image_t img, int *p_row, int *p_col, int b ) {
   // TODO
 
-  // Vérification des paramètres
-  if (ptr == NULL || img == NULL || p_row == NULL || p_col == NULL ) {
+  // Vérification de la valeur de b
+  if(!(1==b || 2==b || 4==b || 8==b)) {
+    fprintf(stderr, "ERROR stego_encode_block : b différent de 1, 2, 4 ou 8.\n");
     return -1;
   }
 
-  // Vérification de la profondeur de bits
-  if (b != 1 && b != 2 && b != 4 && b != 8) {
-    return -1;
-  }
+  byte_t byteCache; // Variable qui va contenir les bits de poids faible du pixel
+  int nb_pixel = 8/b; // Nombre de pixels nécessaires pour encoder un octet
 
-  // Vérification de pixels restants pour encoder le message de taille size
-  int nb_pixels = img->width * img->height;
-  int nb_pixels_restants = nb_pixels - (*p_row * img->width + *p_col);
-  int nb_pixels_necessaires = size * 8 / b;
-  if (nb_pixels_restants < nb_pixels_necessaires) {
-    return -1;
-  }
+  // On encode chaque octet du message dans l'image
+  for(size_t oct=0; oct<size; oct++) {
+    // On encode chaque bit de l'octet dans un pixel
+    for(int i=0; i<nb_pixel; i++) {
+      // On récupère les bits de poids faible du pixel dans byteCache
+      byte_get_bits(*ptr, i*b, b, &byteCache);
+      // On met les bits de poids faible du pixel à la valeur de byteCache
+      byte_set_lsb(&(img->pix[*p_row][*p_col]), b, byteCache);
 
-  // Encode le message dans l'image
-  int i;
-  // Boucle sur les octets du message
-  for (i = 0; i < size; i++) {
-    // Boucle sur les bits de l'octet
-    int j = 0;
-    for (j = 0; j < 8; j += b) {
-      // Récupération du pixel
-      byte_t pixel = 0;
-      int ret = image_get_pixel(img, *p_row, *p_col, &pixel);
-      if (ret != 0) {
+      // On vérifie que l'on ne dépasse pas la taille de l'image
+      if(*p_col>=img->width && *p_row>=img->height) {
+        fprintf(stderr, "ERROR stego_encode_block : pas assez des pixels restants.\n");
         return -1;
       }
 
-      // Récupération des b bits de poids faible de l'octet
-      byte_t lsb = 0;
-      ret = byte_get_lsb(ptr[i], b, &lsb);
-      if (ret != 0) {
-        return -1;
+      // On passe au pixel suivant
+      if(*p_col<img->width-1) {
+        (*p_col)++;
       }
-
-      // Modification des b bits de poids faible du pixel
-      ret = byte_set_lsb(&pixel, b, lsb);
-      if (ret != 0) {
-        return -1;
-      }
-
-      // Modification du pixel dans l'image
-      ret = image_set_pixel(img, *p_row, *p_col, pixel);
-      if (ret != 0) {
-        return -1;
-      }
-
-      // Mise à jour de la position du pixel
-      // printf("row : %d, col : %d\n", *p_row, *p_col);
-      if (*p_col == img->width - 1) {
+      else {
+        (*p_row)++;
         *p_col = 0;
-        *p_row += 1;
-      } else {
-        *p_col += 1;
       }
     }
+    ptr++;
   }
-
   return 0;
 }
 
 int stego_encode( image_t img, char *filename, int b ) {
   // TODO
+  if(!(1==b || 2==b || 4==b || 8==b)) {
+    fprintf(stderr, "ERROR stego_encode : b différent de 1, 2, 4 ou 8.\n");
+    return -1;
+  }
+  
+  stego_header_t stegoHeader;
+  stegoHeader.canary = CANARY;
+  stegoHeader.name_len = strlen(filename);
+  
+  size_t *pcontent_len = malloc(sizeof(stegoHeader.content_len));
+  contents_read(filename, pcontent_len);
+  stegoHeader.content_len = *pcontent_len;
+
+  byte_t *contents = calloc(stegoHeader.content_len, sizeof(stegoHeader.content_len));
+  contents = contents_read(filename, pcontent_len);
+
+  int row = 0, col = 0;
+
+  if(stego_encode_block((byte_t *)&stegoHeader, sizeof(stegoHeader), img, &row, &col, b)) {
+    fprintf(stderr, "ERROR stego_encode : Encodage de Header échoue.\n");
+    return -1;
+  }
+  if(stego_encode_block((byte_t *)filename, stegoHeader.name_len, img, &row, &col, b)) {
+    fprintf(stderr, "ERROR stego_encode : Encodage de nom du fichier %s échoue.\n", filename);
+    return -1;
+  }
+  if(stego_encode_block(contents, stegoHeader.content_len, img, &row, &col, b)) {
+    fprintf(stderr, "ERROR stego_encode : Encodage de contenu du fichier %s échoue.\n", filename);
+    return -1;
+  }
+
+  free(pcontent_len);
+  free(contents);
+  return 0;
 }
 
