@@ -1,0 +1,29 @@
+MIT License
+
+Copyright (c) 2024 Ahmad Asyraf Ahmad Saibudin
+
+This licence applies to the files written by the author: src/byte_get.c,
+src/byte_set.c, src/contents.c, src/image.c, src/options.c,
+src/stego_encode.c, src/stego_decode.c, the pgm_read function in src/pgm.c,
+test/roundtrip.py and README.md. The headers in include/, project/steg1ano.c,
+pgm_write and byte_print, the unit tests test/lvl-*, the Makefile and
+Makefile.inc were supplied by course material and are not covered by this
+licence.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
