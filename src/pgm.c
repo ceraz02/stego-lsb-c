@@ -132,7 +132,7 @@ int     pgm_write( char *filename, image_t img ) {
     return -2 ;
   }
   
-  FILE *fp = fopen( filename, "w" );
+  FILE *fp = fopen( filename, "wb" );
   if ( NULL == fp ) {
     fprintf( stderr, "ERROR pgm_write : Impossible d'ouvrir %s: %s.\n", filename, strerror( errno ) );
     return -3;
