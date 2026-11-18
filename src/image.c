@@ -19,7 +19,7 @@ image_t  image_new( int height, int width, int nbchan ) {
   }
 
   /* Allocation de la mémoire */
-  image_t img = calloc(1, sizeof(image_t));
+  image_t img = calloc(1, sizeof(*img));
   if (img == NULL) 
   {
     // printf("Erreur d'allocation de mémoire\n");

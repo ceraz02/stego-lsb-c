@@ -36,14 +36,17 @@ Not done: the optional extensions (any depth from 1 to 8, colour PPM images, one
 
 ## Verification
 
-- **Course unit tests:** the six that do not need image files pass (built with gcc 13). The other three (`lvl-2-pgm_ok`, `lvl-2-stego`, `lvl-3-pgm_read_with_comments`) read the course's sample images, which the course does not put in git, so they cannot run from this repository.
-- **Round trip on generated images** (`test/roundtrip.py`): hides a 500-byte file in a 256 x 256 image at 1, 2, 4 and 8 bits per pixel and checks that the recovered file is identical; checks that an image that is too small is refused cleanly; checks that an image without a message is refused. 6 of 6 pass.
-- **Memory:** I used Valgrind during the course. I have not re-run it on the final version in this repository.
+Checked on Linux (Ubuntu 24.04 under WSL2, gcc 13) with AddressSanitizer, LeakSanitizer and UBSan, and also built with gcc on Windows:
+
+- **Course unit tests:** three of them (`lvl-2-pgm_ok`, `lvl-2-stego`, `lvl-3-pgm_read_with_comments`) read the course's sample images, which the course does not put in git, so they cannot run from this repository. Of the six that need no image, five are clean. `lvl-1-contents` reports a 30-byte leak that comes from the supplied test itself (it overwrites the pointer it read without freeing it), not from the library.
+- **Round trip on generated images** (`test/roundtrip.py`): hides a 500-byte file in a 256 x 256 image at 1, 2, 4 and 8 bits per pixel and checks that the recovered file is identical; checks that an image that is too small is refused cleanly; checks that an image without a message is refused. 6 of 6 pass, with no sanitizer report.
+- **Memory:** I used Valgrind during the course. On this final version I used the sanitizers instead (Valgrind is not installed on the test machine).
 
 ## Review fixes
 
-After the project was handed in, a review of `stego_encode.c` and `stego_decode.c` found and fixed these (see the last commit):
+After the project was handed in, a review and a sanitizer run found and fixed these (see the review-fix commit):
 
+- `image_new` allocated `sizeof(image_t)`, which is the size of a pointer, instead of the size of the structure: 8 bytes for a 24-byte structure. glibc's minimum allocation size hid it, but AddressSanitizer flags a heap overflow on every run. It now uses `sizeof(*img)`.
 - The pixel bounds check ran after the write and with the wrong condition, so an image that was too small could be overrun. It now runs before every pixel access, and the round-trip test covers it.
 - The file to hide was read twice, leaking the first buffer, and some error paths did not free memory.
 - The result of writing the decoded file was compared with the wrong value, so write errors went unnoticed.
